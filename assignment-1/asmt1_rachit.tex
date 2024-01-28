@@ -2,8 +2,10 @@
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{algorithm}
+\usepackage{algcompatible}
 \usepackage{algpseudocode}
 \usepackage{parskip}
+\usepackage{commath}
 \usepackage{hyperref}
 
 \usepackage[margin=2.2cm]{geometry}
@@ -20,8 +22,9 @@
 
 \begin{enumerate}
     \item $k$ ranges from $1$ to $3n$.
-    \item $A \cup B \cup C$ is the concatenation of the 3 arrays $A$, $B$ and $C$. Formally, if $A = \{ a_1 , a_2 , \cdots a_n \}$, $B = \{ b_1 , b_2 , \cdots b_n \}$ and $C = \{ c_1 , c_2 \cdots c_n \}$; $A \cup B \cup C = \{ a_1 , a_2 , \cdots a_n , b_1 , b_2 , \cdots b_n , c_1 , c_2 , \cdots c_n\}$.   
-    \item Array indices are from $1$ to $n$.
+    \item \textbf{Array indices are from $0$ to $n-1$.}
+    \item \textbf{Passing in arrays or subarrays of an array into a function is a constant time operation, because in practice we can implement this by using start and end pointers instead. Arrays are passed directly in the pseudocode to avoid overly messy code.}
+    \item For an array $A$, $\abs{A}$ is the size of array $A$. Similar to the previous point, accessing the size of an array is also a constant-time operation.
 \end{enumerate}
 
 \section{Preprocessing}
@@ -37,29 +40,29 @@ The algorithm is recursive. Consider the current subarrays to be $S_0$, $S_1$ an
 
 Define $mid(S_i) = \lfloor \frac{n_i}{2} \rfloor$ where $n_i$ is the size of the array $S_i$, where $i = 0,1,2$.  
 
-We have two cases, $\sum_{i=0}^{2} mid(S_i) \leq k$ and $\sum_{i=0}^{2} mid(S_i) > k$. 
+We have two cases, $\sum_{i=0}^{2} mid(S_i) < k$ and $\sum_{i=0}^{2} mid(S_i) \geq k$. 
 
 \begin{enumerate}
 
-\item Let's consider the first case, $\sum_{i=0}^{2} mid(S_i) \leq k$.
+\item Let's consider the first case, $\sum_{i=0}^{2} mid(S_i) < k$.
 
     Without loss of generality, let $S_0[mid(S_0)]$ be the \textbf{minimum} of all $S_i[mid(S_i)]$ for $i=0,1,2$.
 
-        Then, all elements of $S_0[1, \cdots, mid(S_0) - 1]$ can be written as the $j\textsuperscript{th}$ smallest in $S_0 \cup S_1 \cup S_2$ where $j < k$ (refer to \hyperlink{section.7}{Proof of Correctness}).
+        Then, all elements of $S_0[0, \cdots, mid(S_0)]$ can be written as the $j\textsuperscript{th}$ smallest in $S_0 \cup S_1 \cup S_2$ where $j < k$ (refer to \hyperlink{section.7}{Proof of Correctness}).
 
-        So, our required element may not be in $S_0[1, \cdots, mid(S_0) - 1]$ because they can be at most the $(k-1)\textsuperscript{th}$ smallest, but it is definitely elsewhere in the remaining subarray and 2 arrays.
+        So, our required element may not be in $S_0[0, \cdots, mid(S_0)]$ because they can be at most the $(k-1)\textsuperscript{th}$ smallest, but it is definitely elsewhere in the remaining subarray and 2 arrays.
 
-        So, we recursively find the $(k - mid(S_0) + 1)\textsuperscript{th}$ smallest element in $S_0[mid(S_0), \cdots, n_0] \cup S_1 \cup S_2$.
+        So, we recursively find the $(k - mid(S_0))\textsuperscript{th}$ smallest element in $S_0[mid(S_0) + 1, \cdots, n_0 - 1] \cup S_1 \cup S_2$.
 
-\item Now for the latter case, $\sum_{i=0}^{2} mid(S_i) > k$.
+\item Now for the latter case, $\sum_{i=0}^{2} mid(S_i) \geq k$.
 
     Without loss of generality, let $S_0[mid(S_0)]$ be the \textbf{maximum} of all $S_i[mid(S_i)]$ for $i=0,1,2$.
 
-        Then, all elements of $S_0[mid(S_0), \cdots, n_0]$ can be written as the $j\textsuperscript{th}$ smallest in $S_0 \cup S_1 \cup S_2$ where $j > k$ (refer to \hyperlink{section.7}{Proof of Correctness}).
+        Then, all elements of $S_0[mid(S_0) + 1, \cdots, n_0 - 1]$ can be written as the $j\textsuperscript{th}$ smallest in $S_0 \cup S_1 \cup S_2$ where $j > k$ (refer to \hyperlink{section.7}{Proof of Correctness}).
 
-        So, our required element may not be in $S_0[mid(S_0), \cdots, n_0]$ because they can be at least the $(k+1)\textsuperscript{th}$ smallest, but it is definitely elsewhere in the remaining subarray and 2 arrays.
+        So, our required element may not be in $S_0[mid(S_0) + 1, \cdots, n_0 - 1]$ because they can be at least the $(k+1)\textsuperscript{th}$ smallest, but it is definitely elsewhere in the remaining subarray and 2 arrays.
 
-        So, we recursively find the $k\textsuperscript{th}$ smallest element in $S_0[1, \cdots, mid(S_0) - 1] \cup S_1 \cup S_2$.
+        So, we recursively find the $k\textsuperscript{th}$ smallest element in $S_0[0, \cdots, mid(S_0)] \cup S_1 \cup S_2$.
 
 \end{enumerate}
 
@@ -103,83 +106,96 @@ Since $p = n_1n_2n_3$, $\log p = \log n_1 + \log n_2 + \log n_3 = 3 \log n$.
 
 \section{Pseudocode}
 
+\newpage
+
 \begin{algorithm}[H]
 \caption{KthSmallest}
 \begin{algorithmic}[1]
 
-\Function {KthSmallest}{A, B, C, n, k} 
-    \\ \phantom a \phantom .
-    \Return FindKth(A, B, C, 1, n, 1, n, 1, n, k)
+\Function {KthSmallest}{A, B, C, n, k}
+\\ \phantom a \phantom .
+    \Return KthIndex(A, B, C, k-1)
 \EndFunction
 
 \\
 
-\Function {FindKth}{X, Y, Z, $x_0$, $x_1$, $y_0$, $y_1$, $z_0$, $z_1$, $k$}
+\Function {KthIndex}{A, B, C, k} 
+\\
+    \If {A is empty and B is empty}
+        \Return C[k]
+    \EndIf
+\\
+    \If {A is empty and C is empty}
+        \Return B[k]
+    \EndIf
+\\
+    \If {C is empty and B is empty}
+        \Return A[k]
+    \EndIf
+\\
 
+    \For {$I \in \{A,B,C\}$}
+    \If {I is empty}
+        \State $m_I \gets \infty$
+        \State $M_I \gets -\infty$
+    \Else
+        \State $m_I \gets$ I[Mid(I)] 
+        \State $M_I \gets$ I[Mid(I)] 
+    \EndIf
+    \EndFor
+
+\\
+    \State $M \gets \max(M_A, M_B, M_C)$
+    \State $m \gets \min(m_A, m_B, m_C)$
+
+\\
+    \State $n_{tot} \gets$ Mid(A) + Mid(B) + Mid(C)
+
+\\
+
+    \If {$n_{tot} < k$}
     \\
-
-    \If {$x_0 = x_1$ and $y_0 = y_1$ and $z_0 = z_1$}
-        \If {$k = 1$}
-        \Return min( X[$x_0$], Y[$y_0$], Z[$z_0$] )
+        \If {$m_A = m$}
+        \\ \phantom a \phantom a \phantom a \phantom a \phantom . \phantom .
+        \Return KthIndex(A[Mid(A)+1, $\cdots$, $\abs{A} - 1$], B, C, k - Mid(A) - 1)
+        \ElsIf {$m_B = m$}
+        \\ \phantom a \phantom a \phantom a \phantom a \phantom . \phantom .
+        \Return KthIndex(A, B[Mid(B)+1, $\cdots, \abs{B} - 1$], C, k - Mid(B) - 1)
+        \Else
+        \\ \phantom a \phantom a \phantom a \phantom a \phantom . \phantom .
+        \Return KthIndex(A, B, C[Mid(C)+1, $\cdots, \abs{C} - 1$], k - Mid(C) - 1)
         \EndIf
-        \If {$k = 3$}
-        \Return max( X[$x_0$], Y[$y_0$], Z[$z_0$] )
-        \EndIf
-
         \\
-        \phantom a \phantom a \phantom . \phantom .
-        \Return  X[$x_0$] + Y[$y_0$] + Z[$z_0$] - ( min( X[$x_0$], Y[$y_0$], Z[$z_0$] ) + max( X[$x_0$], Y[$y_0$], Z[$z_0$] ) )
-    \EndIf
-
-    \\
-    \State $M \gets (-\infty)$
-    \State $m \gets \infty$
-
-    \If {$x_1 > x_0$}
-        \State $M \gets \max(M, \text{X[ \begin{math} \lfloor \frac{x_0 + x_1}{2} \rfloor \end{math} ]})$
-        \State $m \gets \min(m, \text{X[ \begin{math} \lfloor \frac{x_0 + x_1}{2} \rfloor \end{math} ]})$
-    \EndIf
-
-    \If {$y_1 > y_0$}
-        \State $M \gets \max(M, \text{Y[ \begin{math} \lfloor \frac{y_0 + y_1}{2} \rfloor \end{math} ]})$
-        \State $m \gets \min(m, \text{Y[ \begin{math} \lfloor \frac{y_0 + y_1}{2} \rfloor \end{math} ]})$
-    \EndIf
-
-    \If {$z_1 > z_0$}
-        \State $M \gets \max(M, \text{Z[ \begin{math} \lfloor \frac{z_0 + z_1}{2} \rfloor \end{math} ]})$
-        \State $m \gets \min(m, \text{Z[ \begin{math} \lfloor \frac{z_0 + z_1}{2} \rfloor \end{math} ]})$
-    \EndIf
-    
-    \\
-    \If {$\lfloor \frac{x_0 + x_1}{2} \rfloor + \lfloor \frac{y_0 + y_1}{2} \rfloor + \lfloor \frac{z_0 + z_1}{2} \rfloor \leq$ k}
-    \\
-
-        \If {$x_1 > x_0$ and $m = X[ \lfloor \frac{x_0 + x_1}{2} \rfloor ]$}
-        \\ \phantom a \phantom a \phantom a \phantom a \phantom a 
-        \Return FindKth(X, Y, Z, $\lfloor \frac{x_0 + x_1}{2} \rfloor$, $x_1$, $y_0$, $y_1$, $z_0$, $z_1$, $k + 1 - \lfloor \frac{x_0 + x_1}{2} \rfloor  $)
-        \EndIf
-        \If {$y_1 > y_0$ and $m = Y[ \lfloor \frac{y_0 + y_1}{2} \rfloor ]$}
-        \\ \phantom a \phantom a \phantom a \phantom a \phantom a 
-        \Return FindKth(X, Y, Z, $x_0$, $x_1$, $\lfloor \frac{y_0 + y_1}{2} \rfloor$, $y_1$, $z_0$, $z_1$, $k + 1 - \lfloor \frac{y_0 + y_1}{2} \rfloor  $)
-        \EndIf
-        \\ \phantom a \phantom a \phantom a \phantom . 
-        \Return FindKth(X, Y, Z, $x_0$, $x_1$, $y_0$, $y_1$, $\lfloor \frac{z_0 + z_1}{2} \rfloor$, $z_1$, $k + 1 - \lfloor \frac{z_0 + z_1}{2} \rfloor  $)
     \Else
     \\
-
-        \If {$x_1 > x_0$ and $M = X[ \lfloor \frac{x_0 + x_1}{2} \rfloor ]$}
-        \\ \phantom a \phantom a \phantom a \phantom a \phantom a 
-        \Return FindKth(X, Y, Z, $x_0$, $\lfloor \frac{x_0 + x_1}{2} \rfloor - 1$, $y_0$, $y_1$, $z_0$, $z_1$, $k + 1 - \lfloor \frac{x_0 + x_1}{2} \rfloor  $)
+        \If {$M_A = M$}
+        \\ \phantom a \phantom a \phantom a \phantom a \phantom . \phantom .
+        \Return KthIndex(A[$0, \cdots,$ Mid(A)], B, C, k)
+        \ElsIf {$M_B = M$}
+        \\ \phantom a \phantom a \phantom a \phantom a \phantom . \phantom .
+        \Return KthIndex(A, B[0, $\cdots,$ Mid(B)], C, k)
+        \Else
+        \\ \phantom a \phantom a \phantom a \phantom a \phantom . \phantom .
+        \Return KthIndex(A, B, C[0, $\cdots,$ Mid(C)], k)
         \EndIf
-        \If {$y_1 > y_0$ and $M = Y[ \lfloor \frac{y_0 + y_1}{2} \rfloor ]$}
-        \\ \phantom a \phantom a \phantom a \phantom a \phantom a 
-        \Return FindKth(X, Y, Z, $x_0$, $x_1$, $\lfloor \frac{y_0 + y_1}{2} \rfloor$, $y_1$, $z_0$, $z_1$, $k + 1 - \lfloor \frac{y_0 + y_1}{2} \rfloor  $)
-        \EndIf
-        \\ \phantom a \phantom a \phantom a \phantom . 
-        \Return FindKth(X, Y, Z, $x_0$, $x_1$, $y_0$, $y_1$, $\lfloor \frac{z_0 + z_1}{2} \rfloor$, $z_1$, $k + 1 - \lfloor \frac{z_0 + z_1}{2} \rfloor  $)
+        \\
     \EndIf
-
+\\
 \EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+The Mid() function is defined as below:
+
+\begin{algorithm}[H]
+\begin{algorithmic}[1]
+\Function {Mid}{Arr}
+    \State $s \gets \abs{Arr}$
+\\
+\phantom a \phantom .
+    \Return $\lfloor \frac{s}{2} \rfloor$ 
+\EndFunction
+
 
 \end{algorithmic}
 \end{algorithm}
@@ -187,6 +203,13 @@ Since $p = n_1n_2n_3$, $\log p = \log n_1 + \log n_2 + \log n_3 = 3 \log n$.
 \section{Proof of Correctness}
 % Provide the proof of correctness for your algorithm
 
-The explanation of how the algorithm works is provided in the 
+The basic explanation and proof of how the algorithm works is provided in the algorithm description section itself. 
+
+Here are some of the more minute details:
+
+\begin{itemize}
+    \item For the proof of $j < k$, consider the opposite. If $j \geq k$, the middle elements are at least the $(k+1)\textsuperscript{th}$ smallest, and therefore our assumption is false.
+    \item For the proof of $j > k$ in case 2, consider the opposite. If $j \leq k$, the middle elements are at most the $k\textsuperscript{th}$ smallest, and therefore our assumption is false.
+\end{itemize}
 
 \end{document}
