@@ -71,7 +71,7 @@ Furthermore, for completeness, if at any point of the algorithm an array cannot 
 \section{Recurrence Relation}
 % Provide the recursive relation of your algorithm
 
-Let $p = n_1n_2n_3$ be the current product of the sizes of A, B and C; $n_1$, $n_2$ and $n_3$ respectively. Since the size of one of the arrays in the next subproblem will be approximately halved, size of the next subproblem $p' = \frac{p}{2}$. The only serial (non-recursive) operation is comparing two elements in $A \cup B \cup C$, which can be done in $O(n)$ as defined, so the serial time taken is less than equal to $c_0$ for some positive real constant $c_0$. 
+Let $p = n_1n_2n_3$ be the current product of the sizes of A, B and C; $n_1$, $n_2$ and $n_3$ respectively. Since the size of one of the arrays in the next subproblem will be approximately halved, size of the next subproblem $p' = \frac{p}{2}$. The only serial (non-recursive) operation is comparing two elements in $A \cup B \cup C$, which can be done in $O(1)$ as defined, so the serial time taken is less than equal to $c_0$ for some positive real constant $c_0$. 
 
 Therefore, we have:
 
@@ -107,7 +107,78 @@ Since $p = n_1n_2n_3$, $\log p = \log n_1 + \log n_2 + \log n_3 = 3 \log n$.
 \caption{KthSmallest}
 \begin{algorithmic}[1]
 
-\Function {KthSmallest}{params}
+\Function {KthSmallest}{A, B, C, n, k} 
+    \\ \phantom a \phantom .
+    \Return FindKth(A, B, C, 1, n, 1, n, 1, n, k)
+\EndFunction
+
+\\
+
+\Function {FindKth}{X, Y, Z, $x_0$, $x_1$, $y_0$, $y_1$, $z_0$, $z_1$, $k$}
+
+    \\
+
+    \If {$x_0 = x_1$ and $y_0 = y_1$ and $z_0 = z_1$}
+        \If {$k = 1$}
+        \Return min( X[$x_0$], Y[$y_0$], Z[$z_0$] )
+        \EndIf
+        \If {$k = 3$}
+        \Return max( X[$x_0$], Y[$y_0$], Z[$z_0$] )
+        \EndIf
+
+        \\
+        \phantom a \phantom a \phantom . \phantom .
+        \Return  X[$x_0$] + Y[$y_0$] + Z[$z_0$] - ( min( X[$x_0$], Y[$y_0$], Z[$z_0$] ) + max( X[$x_0$], Y[$y_0$], Z[$z_0$] ) )
+    \EndIf
+
+    \\
+    \State $M \gets (-\infty)$
+    \State $m \gets \infty$
+
+    \If {$x_1 > x_0$}
+        \State $M \gets \max(M, \text{X[ \begin{math} \lfloor \frac{x_0 + x_1}{2} \rfloor \end{math} ]})$
+        \State $m \gets \min(m, \text{X[ \begin{math} \lfloor \frac{x_0 + x_1}{2} \rfloor \end{math} ]})$
+    \EndIf
+
+    \If {$y_1 > y_0$}
+        \State $M \gets \max(M, \text{Y[ \begin{math} \lfloor \frac{y_0 + y_1}{2} \rfloor \end{math} ]})$
+        \State $m \gets \min(m, \text{Y[ \begin{math} \lfloor \frac{y_0 + y_1}{2} \rfloor \end{math} ]})$
+    \EndIf
+
+    \If {$z_1 > z_0$}
+        \State $M \gets \max(M, \text{Z[ \begin{math} \lfloor \frac{z_0 + z_1}{2} \rfloor \end{math} ]})$
+        \State $m \gets \min(m, \text{Z[ \begin{math} \lfloor \frac{z_0 + z_1}{2} \rfloor \end{math} ]})$
+    \EndIf
+    
+    \\
+    \If {$\lfloor \frac{x_0 + x_1}{2} \rfloor + \lfloor \frac{y_0 + y_1}{2} \rfloor + \lfloor \frac{z_0 + z_1}{2} \rfloor \leq$ k}
+    \\
+
+        \If {$x_1 > x_0$ and $m = X[ \lfloor \frac{x_0 + x_1}{2} \rfloor ]$}
+        \\ \phantom a \phantom a \phantom a \phantom a \phantom a 
+        \Return FindKth(X, Y, Z, $\lfloor \frac{x_0 + x_1}{2} \rfloor$, $x_1$, $y_0$, $y_1$, $z_0$, $z_1$, $k + 1 - \lfloor \frac{x_0 + x_1}{2} \rfloor  $)
+        \EndIf
+        \If {$y_1 > y_0$ and $m = Y[ \lfloor \frac{y_0 + y_1}{2} \rfloor ]$}
+        \\ \phantom a \phantom a \phantom a \phantom a \phantom a 
+        \Return FindKth(X, Y, Z, $x_0$, $x_1$, $\lfloor \frac{y_0 + y_1}{2} \rfloor$, $y_1$, $z_0$, $z_1$, $k + 1 - \lfloor \frac{y_0 + y_1}{2} \rfloor  $)
+        \EndIf
+        \\ \phantom a \phantom a \phantom a \phantom . 
+        \Return FindKth(X, Y, Z, $x_0$, $x_1$, $y_0$, $y_1$, $\lfloor \frac{z_0 + z_1}{2} \rfloor$, $z_1$, $k + 1 - \lfloor \frac{z_0 + z_1}{2} \rfloor  $)
+    \Else
+    \\
+
+        \If {$x_1 > x_0$ and $M = X[ \lfloor \frac{x_0 + x_1}{2} \rfloor ]$}
+        \\ \phantom a \phantom a \phantom a \phantom a \phantom a 
+        \Return FindKth(X, Y, Z, $x_0$, $\lfloor \frac{x_0 + x_1}{2} \rfloor - 1$, $y_0$, $y_1$, $z_0$, $z_1$, $k + 1 - \lfloor \frac{x_0 + x_1}{2} \rfloor  $)
+        \EndIf
+        \If {$y_1 > y_0$ and $M = Y[ \lfloor \frac{y_0 + y_1}{2} \rfloor ]$}
+        \\ \phantom a \phantom a \phantom a \phantom a \phantom a 
+        \Return FindKth(X, Y, Z, $x_0$, $x_1$, $\lfloor \frac{y_0 + y_1}{2} \rfloor$, $y_1$, $z_0$, $z_1$, $k + 1 - \lfloor \frac{y_0 + y_1}{2} \rfloor  $)
+        \EndIf
+        \\ \phantom a \phantom a \phantom a \phantom . 
+        \Return FindKth(X, Y, Z, $x_0$, $x_1$, $y_0$, $y_1$, $\lfloor \frac{z_0 + z_1}{2} \rfloor$, $z_1$, $k + 1 - \lfloor \frac{z_0 + z_1}{2} \rfloor  $)
+    \EndIf
+
 \EndFunction
 
 \end{algorithmic}
@@ -116,5 +187,6 @@ Since $p = n_1n_2n_3$, $\log p = \log n_1 + \log n_2 + \log n_3 = 3 \log n$.
 \section{Proof of Correctness}
 % Provide the proof of correctness for your algorithm
 
+The explanation of how the algorithm works is provided in the 
 
 \end{document}
