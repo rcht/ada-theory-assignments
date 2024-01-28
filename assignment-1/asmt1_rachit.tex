@@ -3,6 +3,8 @@
 \usepackage{amsmath}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage{parskip}
+\usepackage{hyperref}
 
 \usepackage[margin=2.2cm]{geometry}
 
@@ -24,131 +26,88 @@
 
 \section{Preprocessing}
 % Your preprocessing steps go here
-$A$, $B$, $C$ and $n$ (the size of any one of the 3 sorted arrays) must already be stored in memory before the algorithm runs. 
+
+None required.
 
 \section{Algorithm Description}
-% Describe your algorithm here
 
-If a number is the $k \textsuperscript{th}$ smallest number in an array, it is greater than or equal to at least $k-1$ elements of the array. 
+We start with the arrays $A$, $B$ and $C$ as the main problem.
 
-Note that if $a \geq b$ for any two real numbers $a$ and $b$, if $a$ is larger than or equal to $k_1$ numbers in the 3 arrays and $b$ is larger than or equal $k_2$ numbers, then $k_1 \geq k_2$. 
+The algorithm is recursive. Consider the current subarrays to be $S_0$, $S_1$ and $S_3$, and the current element to be found as the $k\textsuperscript{th}$ smallest.
 
-Since the arrays are sorted in increasing order, on each array, we can use binary search to calculate which number comes closest to $k-1$ numbers smaller than it. 
+Define $mid(S_i) = \lfloor \frac{n_i}{2} \rfloor$ where $n_i$ is the size of the array $S_i$, where $i = 0,1,2$.  
 
-For each iteration of the binary search, we will lower-bound and upper-bound binary search the current value in all 3 arrays to calculate 
+We have two cases, $\sum_{i=0}^{2} mid(S_i) \leq k$ and $\sum_{i=0}^{2} mid(S_i) > k$. 
 
-After repeating the search in all 3 arrays, we are sure to find the required number since at least one solution is guaranteed to exist.
+\begin{enumerate}
 
+\item Let's consider the first case, $\sum_{i=0}^{2} mid(S_i) \leq k$.
 
+    Without loss of generality, let $S_0[mid(S_0)]$ be the \textbf{minimum} of all $S_i[mid(S_i)]$ for $i=0,1,2$.
+
+        Then, all elements of $S_0[1, \cdots, mid(S_0) - 1]$ can be written as the $j\textsuperscript{th}$ smallest in $S_0 \cup S_1 \cup S_2$ where $j < k$ (refer to \hyperlink{section.7}{Proof of Correctness}).
+
+        So, our required element may not be in $S_0[1, \cdots, mid(S_0) - 1]$ because they can be at most the $(k-1)\textsuperscript{th}$ smallest, but it is definitely elsewhere in the remaining subarray and 2 arrays.
+
+        So, we recursively find the $(k - mid(S_0) + 1)\textsuperscript{th}$ smallest element in $S_0[mid(S_0), \cdots, n_0] \cup S_1 \cup S_2$.
+
+\item Now for the latter case, $\sum_{i=0}^{2} mid(S_i) > k$.
+
+    Without loss of generality, let $S_0[mid(S_0)]$ be the \textbf{maximum} of all $S_i[mid(S_i)]$ for $i=0,1,2$.
+
+        Then, all elements of $S_0[mid(S_0), \cdots, n_0]$ can be written as the $j\textsuperscript{th}$ smallest in $S_0 \cup S_1 \cup S_2$ where $j > k$ (refer to \hyperlink{section.7}{Proof of Correctness}).
+
+        So, our required element may not be in $S_0[mid(S_0), \cdots, n_0]$ because they can be at least the $(k+1)\textsuperscript{th}$ smallest, but it is definitely elsewhere in the remaining subarray and 2 arrays.
+
+        So, we recursively find the $k\textsuperscript{th}$ smallest element in $S_0[1, \cdots, mid(S_0) - 1] \cup S_1 \cup S_2$.
+
+\end{enumerate}
+
+The base case for the recursion is simple. If the arrays $S_0$, $S_1$ and $S_2$ all have a single element, then the elements smaller than them will be $k-1$ in total, so we return the minimum of these 3 elements.
+
+Furthermore, for completeness, if at any point of the algorithm an array cannot be divided further, we only recurse further on arrays which can.
 
 
 \section{Recurrence Relation}
 % Provide the recursive relation of your algorithm
-The algorithm is not recursive.
+
+Let $p = n_1n_2n_3$ be the current product of the sizes of A, B and C; $n_1$, $n_2$ and $n_3$ respectively. Since the size of one of the arrays in the next subproblem will be approximately halved, size of the next subproblem $p' = \frac{p}{2}$. The only serial (non-recursive) operation is comparing two elements in $A \cup B \cup C$, which can be done in $O(n)$ as defined, so the serial time taken is less than equal to $c_0$ for some positive real constant $c_0$. 
+
+Therefore, we have:
+
+\begin{align*}
+    T(p) = T(p') + c_0 \\
+    T(p) = T(\frac{p}{2}) + c_0
+\end{align*}
 
 \section{Complexity Analysis}
 % Analyze the time and space complexity of your algorithm
-$O(\log \textsuperscript{2} n)$
+
+The above recurrence relation can be expressed as 
+
+\begin{align*}
+    T(p) = aT(\frac{p}{b}) + k_0p^c
+\end{align*}
+
+where $a = 1, b = 2, c = 0$.
+
+By Master's theorem, since $0 = \log_2{1}$ and thus $c = \log_b{a}$, 
+
+\begin{align*}
+    T(p) = O(\log p)
+\end{align*}
+
+Since $p = n_1n_2n_3$, $\log p = \log n_1 + \log n_2 + \log n_3 = 3 \log n$.
+
+\textbf{Therefore, the overall problem with 3 arrays of size $n$ can be solved in $O(3 \log n) = O(\log n)$ time.} 
 
 \section{Pseudocode}
 
-Below is the pseudocode of the main calling function, 'KthSmallest'. Other functions called are also defined below the pseudocode of 'KthSmallest'.
-
 \begin{algorithm}[H]
+\caption{KthSmallest}
 \begin{algorithmic}[1]
 
-\caption{KthSmallest - O($\log \textsuperscript{2} n$)}
-
-
-\Function{KthSmallest}{$\text{k}$}
-    % Pseudocode for your algorithm
-    \State $(v_1, b_1) \gets \text{FindClosest(A, N, k)}$
-    \If {$b_1 = \text{True}$}
-        \Return $v_1$
-    \EndIf
-    \State $(v_2, b_2) \gets \text{FindClosest(B, N, k)}$
-    \If {$b_2 = \text{True}$}
-        \Return $v_2$
-    \EndIf
-    \State $(v_3, b_3) \gets \text{FindClosest(C, N, k)}$
-    \\ \phantom a \phantom . \Return $v_3$
-\EndFunction
-
-\end{algorithmic}
-\end{algorithm}
-
-The 'FindClosest' function is defined below: 
-
-\begin{algorithm}[H]
-\begin{algorithmic}[1]
-
-\caption{FindClosest - O($\log \textsuperscript{2} N$)}
-
-\Function{FindClosest}{$\text{Arr, N, Val}$}
-    \State $l \gets 1$ 
-    \State $r \gets N$ 
-    \While {$l \leq r$}
-        \State $m \gets \lfloor \frac{l+r}{2} \rfloor$
-        \State $n_{gt} \gets \text{LowerBound(A, $m$, Arr[m])} + \text{LowerBound(B, $m$, Arr[m])} + \text{LowerBound(C, $m$, Arr[m])} - 3$
-        \State $n_{geq} \gets \text{UpperBound(A, $m$, Arr[m])} + \text{UpperBound(B, $m$, Arr[m])} + \text{UpperBound(C, $m$, Arr[m])} - 3$
-        \If {$n_{geq} \geq \text{Val} - 1$}
-            \If {$n_{gt} \leq \text{Val} - 1$}
-                \Return Arr[m]
-            \Else
-                \State $r \gets m-1$
-            \EndIf
-        \Else
-            \State $l \gets m+1$
-        \EndIf
-    \EndWhile \\
-    \phantom a \phantom .
-    \Return $l$
-\EndFunction
-
-\end{algorithmic}
-\end{algorithm}
-
-The binary search functions 'LowerBound' and 'UpperBound' are also defined below:
-
-\begin{algorithm}[H]
-\begin{algorithmic}[1]
-
-    \caption{LowerBound - O($\log N$)}
-
-\Function{LowerBound}{$\text{Arr, N, Val}$}
-    \State $l \gets 1$ 
-    \State $r \gets N$ 
-    \While {$l \leq r$}
-        \State $m \gets \lfloor \frac{l+r}{2} \rfloor$
-        \If {$\text{Arr}[m] \geq \text{Val}$}
-            \State $r \gets m-1$
-        \Else
-            \State $l \gets m+1$
-        \EndIf
-    \EndWhile \\
-    \phantom a \phantom .
-    \Return $l$
-\EndFunction
-
-\end{algorithmic}
-\end{algorithm}
-
-\begin{algorithm}[H]
-\begin{algorithmic}[1]
-    \caption{UpperBound - O($\log N$)}
-\Function{UpperBound}{$\text{Arr, N, Val}$}
-    \State $l \gets 1$ 
-    \State $r \gets N$ 
-    \While {$l \leq r$}
-        \State $m \gets \lfloor \frac{l+r}{2} \rfloor$
-        \If {$\text{Arr}[m] > \text{Val}$}
-            \State $r \gets m-1$
-        \Else
-            \State $l \gets m+1$
-        \EndIf
-    \EndWhile \\
-    \phantom a \phantom .
-    \Return $l$
+\Function {KthSmallest}{params}
 \EndFunction
 
 \end{algorithmic}
