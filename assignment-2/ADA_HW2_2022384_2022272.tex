@@ -1,0 +1,70 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{dirtytalk}
+\usepackage{parskip}
+\usepackage{verbatim}
+\usepackage{listings}
+\usepackage{minted}
+
+\title{ADA-2024: Homework 2}
+\author{Rachit Arora, 2022384 \cr Mahi Mann, 2022272}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\textbf{Note:} throughout this doc we'll be assuming that the array $A$ is indexed from $1$ to $n$.
+
+\section{Subproblem Definition}
+
+
+\begin{align*}
+    \text{MC(i, op, streak)} &= \text{maximum score upto the i\textsuperscript{th} index when \emph{op} (op $\in \{\text{Ring, Ding}\}$)} \\ &\quad \text{ was said at the i\textsuperscript{th} index,
+                             and the current streak of saying \emph{op} is \emph{streak}.}
+\end{align*}
+
+\section{Recurrence of the subproblem}
+
+Let's consider the base cases first.
+
+\begin{align*}
+    \text{MC(i, op, streak)} &= (-\infty) &\text{ (if i $<$ streak)}  \\
+    \text{MC(1, Ring, 1)} &= \text{ A[1]} \\ 
+    \text{MC(1, Ding, 1)} &= \text{(-A[1])} \\ 
+\end{align*} 
+
+Note that we're not working with the absolute values of A[i] here. These base cases handle either sign, and so will the recurrence relations below.
+
+Now we come to the actual recurrences:
+
+\begin{align*}
+    \text{MC(i, Ring, 1)} &= \text{A[i]} + \max(\{\text{ MC(i-1, Ding, s) } | \text{ s } \in \{1,2,3\}\}) \\
+    \text{MC(i, Ding, 1)} &= \text{(-A[i])} + \max(\{\text{ MC(i-1, Ring, s) } | \text{ s } \in \{1,2,3\}\}) \\
+    \text{MC(i, Ring, s)} &= \text{A[i]} + \text{MC(i-1, Ring, s-1) (s $\in \{2,3\}$)} \\ 
+    \text{MC(i, Ding, s)} &= \text{(-A[i])} + \text{MC(i-1, Ding, s-1) (s $\in \{2,3\}$)} \\ 
+\end{align*}
+
+Essentially, if the streak is 1, then the streak of the opposite saying ended at the last index. And if the streak is 2 or 3, the last index was forced to have the same saying. 
+
+A few nuances have been omitted for the sake of sanity. The actual implementation in code is much cleaner, please refer to pseudocode or C++ implementation.
+
+\section{Subproblem that solves the actual problem}
+
+Because of how we've defined the subproblem, there are 6 subproblems at index n. We simply take the maximum as follows:
+
+\begin{align*}
+    \max(\{\text{ MC(n, op, streak) \textbar op $\in \{\text{Ring, Ding}\}$, streak $\in \{1,2,3\}$ }\})
+\end{align*}
+
+\section{Algorithm Description}
+\subsection{Idea}
+Pretty much described above. We'll have a 3-dimensional array of size 6n with all the answers. We'll start with the base cases, and index 3 onwards, compute all subproblems in index order.
+\subsection{Pseudocode}
+\section{Running time}
+
+\section{Addendum: C++ implementation}
+\inputminted{cpp}{/home/rachit/prog/a.cpp}
+\end{document}
+
+
