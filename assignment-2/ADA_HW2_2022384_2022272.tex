@@ -1,11 +1,14 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
+\usepackage{amsfonts}
 \usepackage{dirtytalk}
 \usepackage{parskip}
 \usepackage{verbatim}
 \usepackage{listings}
 \usepackage{minted}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 
 \title{ADA-2024: Homework 2}
 \author{Rachit Arora, 2022384 \cr Mahi Mann, 2022272}
@@ -47,7 +50,7 @@ Now we come to the actual recurrences:
 
 Essentially, if the streak is 1, then the streak of the opposite saying ended at the last index. And if the streak is 2 or 3, the last index was forced to have the same saying. 
 
-A few nuances have been omitted for the sake of sanity. The actual implementation in code is much cleaner, please refer to pseudocode or C++ implementation.
+An case-wise analysis for the border cases has been omitted for the sake of sanity. The actual implementation in code is much cleaner, please refer to pseudocode or C++ implementation.
 
 \section{Subproblem that solves the actual problem}
 
@@ -58,13 +61,141 @@ Because of how we've defined the subproblem, there are 6 subproblems at index n.
 \end{align*}
 
 \section{Algorithm Description}
+
 \subsection{Idea}
 Pretty much described above. We'll have a 3-dimensional array of size 6n with all the answers. We'll start with the base cases, and index 3 onwards, compute all subproblems in index order.
+
 \subsection{Pseudocode}
+
+\textbf{Here, we are assuming that $(-\infty)$ is an arbritrarily large negative integer bound}
+
+(Next page)
+
+\begin{algorithm}[H]
+\caption{MaxChickens}
+\begin{algorithmic}[1]
+
+\Function{MaxChickens}{A,n}
+    \State MC $\gets$ array of dimension $(n \times 2 \times 3)$
+    \\
+    \State Ring $\gets$ 1
+    \State Ding $\gets$ 2
+    \State MC[1][Ring][2] $\gets (-\infty)$ 
+    \State MC[1][Ring][3] $\gets (-\infty)$ 
+    \State MC[1][Ding][2] $\gets (-\infty)$ 
+    \State MC[1][Ding][3] $\gets (-\infty)$ 
+    \State MC[1][Ring][1] $\gets$ A[1]
+    \State MC[1][Ding][1] $\gets$ (-A[1])
+    \\
+    \For{$i = 2, 3, \cdots, n$}
+        \For{streak $= 1,2,3$}
+            \State MC[i][Ring][streak] $\gets (-\infty)$
+            \State MC[i][Ding][streak] $\gets (-\infty)$
+            \If{streak = 0}
+                \For{j $= 1,2,3$}
+                    \If{MC[i-1][Ding][j] $\neq (-\infty)$}
+                        \If {MC[i-1][Ding][j] + A[i] $>$ MC[i][Ring][1]}
+                            \State MC[i][Ring][1] $\gets$ MC[i-1][Ding][j] + A[i]
+                        \EndIf
+                    \EndIf
+                    \If{MC[i-1][Ring][j] $\neq (-\infty)$}
+                        \If {MC[i-1][Ring][j] - A[i] $>$ MC[i][Ding][1]}
+                            \State MC[i][Ding][1] $\gets$ MC[i-1][Ring][j] - A[i]
+                        \EndIf
+                    \EndIf
+                \EndFor
+            \Else
+                \If{MC[i-1][Ring][streak-1] $\neq (-\infty)$} \\
+                    \phantom a \phantom a \phantom a \phantom a \phantom a \phantom a \phantom a \phantom a \phantom a
+                    MC[i][Ring][streak] $\gets$ MC[i-1][Ring][streak-1] + A[i]
+                \EndIf
+                \If{MC[i-1][Ding][streak-1] $\neq (-\infty)$} \\
+                    \phantom a \phantom a \phantom a \phantom a \phantom a \phantom a \phantom a \phantom a \phantom a
+                    MC[i][Ding][streak] $\gets$ MC[i-1][Ding][streak-1] - A[i]
+                \EndIf
+            \EndIf
+        \EndFor
+    \EndFor
+    \State ans $\gets (-\infty)$ 
+    \For{$i \in \{\text{Ring, Ding}\}$}
+        \For{$s \in \{1,2,3\}$}
+            ans $\gets \max$(ans, MC[n][$i$][$s$])
+        \EndFor
+    \EndFor
+    \\
+                    \phantom a \phantom . 
+    \Return ans
+\EndFunction
+
+\end{algorithmic}
+\end{algorithm}
 \section{Running time}
 
-\section{Addendum: C++ implementation}
+For every index i, there are at most $c \geq 6$ constant-time addition and comparison operations (for some natural number $c$), so
+
+\begin{align*}
+    T(i) \leq T(i-1) + c
+\end{align*}
+
+\textbf{We will now prove that $T(n) = O(n)$ by induction on $n$.}
+
+Base case: at $n=1$, two values were initialised, so $2 \leq c$ addition and comparison operations.
+
+Inductive Hypothesis: $T(k) \leq ck$ for some $k \in \mathbb{Z}$.
+
+Inductive Step:
+
+\begin{align*}
+    T(k+1) &\leq T(k) + c \\
+           &\leq ck + c &\text{ (by Inductive Hypothesis)} \\
+           &= O(k+1)
+\end{align*}
+
+\textbf{Therefore, our algorithm runs in $O(n)$ time (linear in $n$)}.
+
+
+\section{Addendum 1: C++ implementation}
 \inputminted{cpp}{/home/rachit/prog/a.cpp}
+\section{Addendum 2: Tests}
+I ran these tests on my C++ implementation:
+
+\begin{verbatim}
+Input:
+8
+1 2 3 4 -1 -2 -3 -4
+Output:
+14
+Comments:
+DING RING RING RING DING RING DING DING
+
+Input: 
+8
+-1 -2 -3 -4 1 2 3 4
+Output:
+14
+Comments:
+Negative of an array gives the same answer as expected (invert the sayings)
+
+Input: 
+100000
+1 1 1 1 .... (100000 ones)
+Output: 
+50000
+Comments:
+RING RING RING DING (repeat this pattern)
+\end{verbatim}
+
+Also, here's a timed test of size 200000 to demonstrate how fast this algorithm is:
+
+\begin{minted}{sh}
+$ g++ a.cpp
+$ time python -c "t=200000;print(str(t)+' 1'*t)" | ./a.out
+100000
+python -c "t=200000;print(str(t)+' 1'*t)"  0.01s user 0.01s system 70% cpu 0.022 total
+./a.out  0.02s user 0.00s system 69% cpu 0.034 total
+\end{minted}
+
+
 \end{document}
 
 

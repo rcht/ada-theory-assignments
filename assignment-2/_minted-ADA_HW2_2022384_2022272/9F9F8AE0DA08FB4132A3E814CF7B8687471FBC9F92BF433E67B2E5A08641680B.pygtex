@@ -1,0 +1,7 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYGZdl{}\PYG{+w}{ }g++\PYG{+w}{ }a.cpp
+\PYGZdl{}\PYG{+w}{ }\PYG{n+nb}{time}\PYG{+w}{ }python\PYG{+w}{ }\PYGZhy{}c\PYG{+w}{ }\PYG{l+s+s2}{\PYGZdq{}t=200000;print(str(t)+\PYGZsq{} 1\PYGZsq{}*t)\PYGZdq{}}\PYG{+w}{ }\PYG{p}{|}\PYG{+w}{ }./a.out
+\PYG{l+m}{100000}
+python\PYG{+w}{ }\PYGZhy{}c\PYG{+w}{ }\PYG{l+s+s2}{\PYGZdq{}t=200000;print(str(t)+\PYGZsq{} 1\PYGZsq{}*t)\PYGZdq{}}\PYG{+w}{  }\PYG{l+m}{0}.01s\PYG{+w}{ }user\PYG{+w}{ }\PYG{l+m}{0}.01s\PYG{+w}{ }system\PYG{+w}{ }\PYG{l+m}{70}\PYGZpc{}\PYG{+w}{ }cpu\PYG{+w}{ }\PYG{l+m}{0}.022\PYG{+w}{ }total
+./a.out\PYG{+w}{  }\PYG{l+m}{0}.02s\PYG{+w}{ }user\PYG{+w}{ }\PYG{l+m}{0}.00s\PYG{+w}{ }system\PYG{+w}{ }\PYG{l+m}{69}\PYGZpc{}\PYG{+w}{ }cpu\PYG{+w}{ }\PYG{l+m}{0}.034\PYG{+w}{ }total
+\end{Verbatim}
