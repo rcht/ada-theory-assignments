@@ -1,0 +1,131 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{dirtytalk}
+\usepackage{parskip}
+\usepackage{verbatim}
+\usepackage{listings}
+\usepackage{minted}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\title{ADA-2024: Homework 3}
+\author{Rachit Arora, 2022384 \cr Mahi Mann, 2022272}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\textbf{Note:} Everything except the actual code implementation uses 1-indexed arrays. Also, it is assumed that \textsc{P} is the spot price function if not explicitly stated otherwise. 
+
+\section{Subproblem Definition}
+
+Define \textsc{Mxp($y$, $x$)} as the maximum price possible to tile a $y$-centimeter in height by $x$-centimeters in width marble slab.
+
+\section{Recurrence of the subproblem}
+
+Trivially, we have the base-cases 
+
+\begin{align*}
+    \textsc{Mxp($y$, 0)} = 0 \\
+    \textsc{Mxp(0, $x$)} = 0
+\end{align*}
+
+Otherwise, 
+
+\begin{align*}
+    \textsc{Mxp($y$, $x$)} = \max\left(\textsc{P[$y$, $x$]}, \max_{1 \leq i \leq y-1}\left(\textsc{Mxp($i$, $x$) + Mxp($y-i$, $x$)}\right), \max_{1 \leq j \leq x-1}\left(\textsc{Mxp($y$, $j$) + Mxp($y$, $x-j$)}\right)\right)
+\end{align*}
+
+See footnote \footnote{Here, we are assuming that a max function on an empty interval returns an arbitrarily low integer (possibly negative). This is done so that we can express the recurrence as a single equation, saving us the painful process of specifying every case.} for possible edge-cases.
+
+\section{Subproblem that solves the actual problem}
+
+\begin{align*}
+    \textsc{Mxp($n$, $m$)}
+\end{align*}
+
+For an $n$ by $m$ sized slab.
+
+\section{Algorithm Description}
+
+\subsection{Idea}
+
+Suppose there is no splitting in the $y$ by $x$ slab. Then, the maximum possible price is simply \textsc{P[$y$, $x$]}, which is the spot price.
+
+Otherwise, there is either a horizontal splitting or a vertical splitting, giving us two subproblems for each position of splitting lines. We can take the sum of these two subproblems and take the maximum of them over all splitting points, giving us the recurrences as above.
+
+\subsection{Pseudocode}
+
+\begin{algorithm}[h]
+\begin{algorithmic}
+\Function{MaxPrice}{P, $n$, $m$}
+    \State Mxp $\gets$ 2D-array of size $n \times m$ 
+    \State $i \gets 1$
+    \While{$i \leq n$}
+        \State $j \gets 1$
+        \While{$j \leq m$}
+            \State Mxp[$i$][$j$] $\gets$ P[$i$][$j$]
+            \State $j \gets j + 1$
+            \State $y \gets 1$
+            \While{$y \leq j-1$}
+                \State Mxp[$i$][$j$] $\gets \max$(Mxp[$i$][$j$],Mxp[$i$][$y$] + Mxp[$i$][$j-y$])
+                \State $y \gets y+1$
+            \EndWhile
+            \State $x \gets 1$
+            \While{$x \leq i-1$}
+                \State Mxp[$i$][$j$] $\gets \max$(Mxp[$i$][$j$], Mxp[$x$][$j$] + Mxp[$i-x$][$j$])
+                \State $x \gets x+1$
+            \EndWhile
+        \EndWhile
+        \State $i \gets i + 1$
+    \EndWhile \\
+    \phantom a \phantom . \Return Mxp[$n$][$m$]
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\textsc{MaxPrice(P, $n$, $m$)} returns the answer for a given spot price function \textsc{P} and an $n$ by $m$ sized slab.
+
+\section{Running time}
+
+For a fixed $i$ and $j$ in the pseudocode, a single iteration has $O(y) = O(m)$ iterations for vertical splits, and $O(x) = O(n)$ iterations for horizontal splits. Therefore, for all iterations combined, there are 
+
+\begin{align*}
+    O(mn)(O(m) + O(n))O(1) = O(mn)O(m + n) = O(mn(m+n))
+\end{align*}
+
+constant time operations in the algorithm. \textbf{Thus, the algorithm runs in $O(mn(m+n))$ time.}
+
+\section{Addendum 1: C++ implementation}
+\inputminted{cpp}{/home/rachit/prog/a.cpp}
+
+\section{Addendum 2: Tests}
+\begin{itemize}
+
+\item
+\begin{verbatim}
+n = 2
+m = 3
+p = {{2,4,1},{4,1,3}}
+
+output: 12
+comments: 6 1x1 tiles
+\end{verbatim}
+
+
+\item
+\begin{verbatim}
+n = 1
+m = 8
+p = {{10,10,10,1000,1000,10,10,10}}
+
+output: 2000
+comments: two 1x4s next to each other
+\end{verbatim}
+
+\end{itemize}
+\section{People discussed with}
+Swapnil Panigrahi and Rohak Kansal
+\end{document}
