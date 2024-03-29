@@ -1,0 +1,21 @@
+#!/usr/bin/env python
+
+import random
+rint = random.randint
+
+n = rint(1, 1000)
+m = rint(1, (n*(n-1))//2)
+
+s = rint(1, n)
+t = rint(s, n)
+
+print(n,m,s,t)
+
+edges = set()
+while len(edges) != m:
+    fst = rint(1,n-1)
+    snd = rint(fst+1, n)
+    edges.add(fst * (n+1) +  snd)
+
+for i in edges:
+    print(i // n+1, i % (n+1))
