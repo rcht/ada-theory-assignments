@@ -33,7 +33,7 @@
 \section{Preprocessing}
 % Your preprocessing steps go here
 
-2 empty adjacency lists of sufficiently large size will be required.
+None required.
 
 \section{Algorithm Description}
 
@@ -44,15 +44,15 @@
 
     The toposort will be done using a variant of DFS, where at the end of every DFS call, the node will be pushed to an array, and the array will be reversed later to get a topologically sorted order from left to right. 
 
-    \item We will remove the nodes which were not reachable by node $s$ in the DFS that we perfomed (because every path from $s$ to $t$ starts from $s$, and since no path from $s$ to those nodes exists, they cannot occur on a path from $s$ to $t$ and therefore cannot be \emph{s-t cut vertices}. So, it is safe to remove them from the graph.) 
+\item We will \textbf{remove the nodes which were not reachable by node $s$ in the DFS} that we perfomed (because every path from $s$ to $t$ starts from $s$, and since no path from $s$ to those nodes exists, they cannot occur on a path from $s$ to $t$ and therefore cannot be \emph{s-t cut vertices}. So, it is safe to remove them from the graph.) 
 
     (\textbf{Note}: this step removes all nodes before $s$ in the topologically sorted order as well, so we do not need to do that step in post-processing. Proved in the "Proof of Correctness" section.)
 
-    \item Similarly, we remove the nodes such that there is no path from that node to node $t$, since for a node to be an \emph{s-t cut vertex}, at least one path from the node to $t$ has to exist. Thus, we can safely remove them from the graph. 
+\item Similarly, \textbf{we remove the nodes such that there is no path from that node to node $t$}, since for a node to be an \emph{s-t cut vertex}, at least one path from the node to $t$ has to exist. Thus, we can safely remove them from the graph. 
 
     (\textbf{Note}: this step removes all nodes after $t$ in the topologically sorted order as well, so we do not need to do that step in post-processing. Proved in the "Proof of Correctness" section.)
 
-    We can do this by performing a DFS on $G^R$ starting from $t$. All nodes not traversed in this DFS will be removed from the graph.
+        We can do this by performing a \textbf{DFS on $G^R$ starting from $t$}. All nodes not traversed in this DFS will be removed from the graph.
 
     \textbf{At this point in the algorithm, every node in the graph is reachable from $s$, and every node can reach $t$, and therefore, there is a path going from $s$ to $t$ through every node.}
 
@@ -62,18 +62,20 @@
 
     \newpage
 
-    \item We will iterate through every node $q$ in topologically sorted order and do the following:
+\item \textbf{We will iterate through every node $q$ in topologically sorted order and do the following:}
         \begin{enumerate}
-            \item Set $counter$ to $counter - e_i$ where $e_i$ is the number of incoming edges at $q$. 
-            \item If $counter$ is 0, add $q$ to $S$.
+            \item \textbf{Set $counter$ to $counter - e_i$} where $e_i$ is the \textbf{number of incoming edges} at $q$. 
+            \item \textbf{If $counter$ is 0, add $q$ to $S$.}
 
-            \item Set $counter$ to $counter + e_o$, where $e_o$ is the number of edges that initiate from $q$ (i.e. outgoing edges).
+            \item \textbf{Set $counter$ to $counter + e_o$}, where $e_o$ \textbf{is the number of edges that initiate from $q$ (i.e. outgoing edges).}
         \end{enumerate}
 
         \textbf{Note:} Suppose there were $n_f$ remaining nodes in the graph after step 3. Then, step 6 has $O(n_f + m)$ constant-time operations where $m$ is the number of edges in the graph.  
     
     \item Remove $s$ and $t$ from $S$.
     \item Return the final answer, $S$, the set of all \emph{s-t cut vertices}, excluding $s$ and $t$.
+
+\end{enumerate}
 
     The idea of why the $counter$ step works is as follows:
 
@@ -83,7 +85,6 @@
         \item $counter$ can never be negative in a topologically sorted order, as we will prove in the "Proof of Correctness" section.
     \end{itemize}
 
-\end{enumerate}
 
 \section{Complexity Analysis}
 % Analyze the time and space complexity of your algorithm
@@ -128,7 +129,7 @@ $O(n)$ \textbf{time, as we simply need to iterate through all nodes in $S$ and c
 
 $O(1)$ time.
 
-\textbf{So in total, since every step is at most $O(m+n)$ time, the algorithm runs in $O(m+n)$ time.}
+\textbf{So in total, since each of the 8 steps is at most $O(m+n)$ time, the algorithm runs in $O(m+n)$ time.}
 
 
 % \newpage 
@@ -189,7 +190,46 @@ $O(1)$ time.
 % \end{algorithm}
 
 \section{Proof of Correctness}
-% Provide the proof of correctness for your algorithm
+% Provide the proof of correctness for your algorithmic
+
+\begin{itemize}
+\item First, we prove the properties about the toposort order that we covered in steps 2 and 3.
+
+\textbf{Corollary 1:} Step 2 removes all nodes before $s$ in the topologically sorted order.
+
+\textbf{Proof:} Suppose a node $k$ before $s$ was not removed. 
+
+If there is an edge from $k$ to $s$, then DFS from $s$ reached $k$ at some point (for node $k$ not to be removed). Let this path be $P$. Then, $P \cup \{k,s\}$  creates a cycle, which is a contradiction because our graph is acyclic. 
+
+If $k$ does not have an edge going to $s$, then because $k$ was not removed, a path from $s$ to $k$ exists, which contradicts the fact that $k$ is before $s$ in the topologically sorted order. 
+
+\textbf{Corollary 2:} Step 3 removes all nodes after $t$ in the topologically sorted order.
+
+\textbf{Proof:} Suppose a node $k$ after $t$ is not removed. Then, a path from $t$ to $k$ exists in $G^R$, which implies that $t$ is before $k$ in the topologically sorted order of $G^R$, which implies that $t$ is after $k$ in the topologically sorted order of $G$, which is a contradiction, since we assumed initially that $t$ is before $k$.
+
+\item Now, we will prove the $count$ property, that $count = 0$ generates an \emph{s-t cut vertex}.
+    
+\textbf{Lemma 1:} $counter \geq 0$ always holds true
+
+\textbf{Proof:} Suppose that at some node $k$, $counter < 0$. Then, the number of incoming edges is more than the number of outgoing edges discovered so far. 
+
+In other words, there exists an edge $\{l, k\}$ for some node $l$ which has not been discovered as an outgoing edge so far.
+
+But this is impossible, because if an edge $\{l,k\}$ exists, then $l$ is before $k$ in the topologically sorted order, and since we are iterating in topologically sorted order, it should have been discovered as an outgoing edge before it was discovered as an incoming edge. 
+
+But since $counter < 0$ requires $l$ to be topologically after $k$, we run into a contradiction, and therefore $counter \geq 0$ always holds true.
+
+\textbf{Final theorem:} Nodes with $counter = 0$ in their iteration are \emph{s-t cut vertices}.
+
+\textbf{Proof:} Suppose by contradiction that $counter > 0$ at a node $k$ and $k$ is an \emph{s-t cut vertex} ($counter < 0$ is impossible due to Lemma 1). Then, for some node $q \neq l$, there exists an outgoing edge from $q$ to another state $q' \neq q$, which is not incoming at $k$.
+
+Since $q'$ has a path to $t$ and $s$ has a path to $q'$, there exists a path from $s$ to $t$ without using $k$. 
+
+Thus, removing $k$ does not disconnect the final graph $G$. But we assumed that $k$ was an \emph{s-t cut vertex}, so it \emph{must} disconnect $G$. This is a contradiction, and therefore $counter = 0$ in node $k$'s iteration.
+
+\end{itemize}
+
+
 
 \section*{Addendum 1: C++ implementation}
 
@@ -207,9 +247,9 @@ Swapnil Panigrahi, Rohak Kansal and Sahil Gupta.
 
 \vspace*{\fill}
 \begin{center}
-    $\square \square \square \square$
+    $\square \square \square \square \square$
     \\
-    thank you.
+    Thank you.
 \end{center}
 \vspace*{\fill}
 
