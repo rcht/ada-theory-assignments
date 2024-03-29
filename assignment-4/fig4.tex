@@ -1,0 +1,50 @@
+\begin{tikzpicture}[->, nodes={draw, circle}, scale=0.5]
+
+    % \node (1) [blue, thick]{1};
+  % \node (2) [above of=1] {2};
+  % \node (3) [right of=2] {3};
+  % \node (4) [right of=3] {4};
+  % \node (6) [below of=3] {6};
+    % \node (5) [ right of=6] {5};
+  % \node (7) [right of=5] {7};
+  % \node (10) [below of=7] {10};
+  % \node (9) [right of=10] {9};
+  % \node (8) [below of=9] {8};
+  % \node (12) [green, thick, left of=8] {12};
+  % \node (11) [left of=12] {11};
+
+  % \path (1) edge (2);
+  % \path (1) edge (3);
+  % \path (2) edge (3);
+  % \path (3) edge (4);
+  % \path (4) edge (5);
+  % \path (3) edge (6);
+  % \path (3) edge (5);
+  % \path (4) edge (6);
+  % \path (6) edge (5);
+  % \path (4) edge (7);
+    % \path (3) edge [bend left=90](7);
+  % \path (5) edge (7);
+  % \path (6) edge [bend right = 45](7);
+    % \path (7) edge [bend left=90](8);
+  % \path (7) edge (9);
+  % \path (7) edge (10);
+  % \path (9) edge (8);
+  % \path (9) edge (10);
+  % \path (8) edge (10);
+  % \path (10) edge (11);
+  % \path (10) edge (12);
+  % \path (11) edge (12);
+
+    \node (1) [blue,thick]{1};
+    \node (2) [red, below of=1] {2};
+    \node (3) [red, right of=2] {3};
+    \node (4) [red, below of=3] {4};
+    \node (5) [green, thick, right of=4] {5};
+
+  \path[every node/.style={font=\sffamily\small}]
+    (1) edge node [left] {} (2)
+    (2) edge node [left] {} (3)
+    (3) edge node [left] {} (4)
+    (4) edge node [right] {} (5);
+\end{tikzpicture}

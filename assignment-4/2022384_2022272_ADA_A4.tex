@@ -1,5 +1,6 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
+\usepackage{float}
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage{algorithm}
@@ -14,11 +15,13 @@
 
 \usepackage[margin=2.2cm]{geometry}
 
+
 \title{Theory Assignment-4: ADA Winter-2024}
 \author{Rachit Arora (2022384) \and Mahi Mann (2022272)}
 
 \date{}
 \begin{document}
+\floatplacement{figure}{H}
 
 \maketitle
 
@@ -28,6 +31,9 @@
     \item It is assumed that the input graph is a Directed Acyclic Graph, and no detection for incorrect input is required.
 
     \item By definition, $s$ and $t$ are always \emph{s-t cut} vertices, so they are mentioned as \emph{trivial s-t cut vertices} in the implementation, given a path from $s$ to $t$ exists. 
+
+    \item In the sample test graph figures shown below, $s$ is \textbf{\textcolor{blue}{blue}} and $t$ is \textbf{\textcolor{green}{green}}.
+
 \end{itemize}
 
 \section{Preprocessing}
@@ -235,10 +241,51 @@ Thus, removing $k$ does not disconnect the final graph $G$. But we assumed that 
 
 \inputminted{cpp}{stcut.cpp}
 
-\section*{Addendum 2: Test cases}
+\newpage
+\section*{Addendum 2: Sample Tests}
 
-\include{./fig1.tex}
-\include{fig2}
+\subsection{Test 1}
+\subsubsection*{Input}
+\inputminted{sh}{./in1}
+\subsubsection*{Graph description}
+\input{fig1}
+\subsubsection*{Output}
+\inputminted{sh}{./out1}
+\subsubsection*{Output illustration}
+\input{fig2}
+
+\subsection{Test 2}
+\subsubsection*{Input}
+\inputminted{sh}{./in2}
+\subsubsection*{Graph description}
+\input{fig3}
+\subsubsection*{Output}
+\inputminted{sh}{./out2}
+\subsubsection*{Output illustration}
+\input{fig4}
+
+\newpage
+
+\subsection{Test 3}
+\subsubsection*{Input}
+\inputminted{sh}{./in3}
+\subsubsection*{Graph description}
+\input{fig5}
+\subsubsection*{Output}
+\inputminted{sh}{./out3}
+\subsubsection*{Output illustration}
+\input{fig6}
+
+\subsection{Test 4}
+\subsubsection*{Input}
+\inputminted{sh}{./in4}
+\subsubsection*{Graph description}
+\input{fig7}
+\subsubsection*{Output}
+\inputminted{sh}{./out4}
+\subsubsection*{Output illustration}
+\input{fig7}
+
 
 \section*{Addendum 3: People discussed with}
 

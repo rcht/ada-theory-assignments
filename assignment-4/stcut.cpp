@@ -59,7 +59,7 @@ int main(){
     dfs2(t);
 
     if(!vis1[t]){
-        cout << "No cut vertices\n";
+        cout << "No cut vertices (no path exists)\n";
         return 0;
     }
 
@@ -82,8 +82,17 @@ int main(){
         }
     }
 
-    for(const auto &item: ans){
-        cout << item << ' ';
+    cout << "Trivial s-t cut vertices: " << ans[0] << ' ' << ans[ans.size() - 1] << '\n'; 
+
+    cout << "Non-trivial s-t cut vertices: ";
+
+    for(int i = 1; i < ans.size() - 1; ++i){
+        cout << ans[i] << ' ';
     }
+
+    if(ans.size() < 3){
+        cout << "none";
+    }
+
     cout << '\n';
 }
