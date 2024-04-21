@@ -1,6 +1,7 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage{float}
+\usepackage{dirtytalk}
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage{algorithm}
@@ -29,6 +30,9 @@
 
 \begin{itemize}
     \item A box $B_2$ can only be placed inside a box $B_1$ if dimensions of $B_2$ can be rearranged to be \textbf{strictly smaller} than dimensions of $B_1$. If not, some trivial minor changes can be made to the implementation. 
+    \item \textbf{A box can only have at most 1 box immediately inside it.} For example, a $3 \times 3 \times 3$ box cannot contain both 2 boxes of $1 \times 1 \times 1$ immediately inside it. However, a box can contain upto 1 box which has other boxes inside it. This assumption is necessary so that constructing the auxiliary graph is polynomial-time. Otherwise, the problem becomes NP-hard.
+
+    \item To see whether the dimensions of a box $B_i$, $d_i = (x_i, y_i, z_i)$ are smaller than those of a box $B_j$ with dimensions $d_j = (x_j, y_j, z_j)$, it suffices to check \textbf{the sorted (increasing order) permutation $(x, y, z)$ of $d_i$} and check that $x < x_j$, $y < y_j$ and $z < z_j$.  
 \end{itemize}
 
 \section{Formulation as a Network Flow problem}
@@ -41,12 +45,63 @@ We want to minimise $k = \text{number of visible boxes}$.
 
 Thus, we have an equivalent problem of \textbf{maximising $v$, the number of invisible boxes.} 
 
+
+(Of course, every edge has weight 1).
+
+We know the following:
+
+\begin{enumerate}
+    \item Suppose we are putting box $B_j$ inside $B_i$. Then, this operation reduces the number of visible boxes by 1 (see Theorem 1 in Proof of Correctness section) and increases the number of invisible boxes by 1.
+
+    \item So, in a sense, we need to maximise the number of \say{outside box}-\say{inside box} pairs, since every \say{inside box} corresponds to an invisible box.
+
+    \item Every invisible box is inside 1 visible box.
+
+    \item Every visible box has at most 1 invisible box (which may be nested) immediately inside it.
+\end{enumerate}
+
+These points clearly suggest the idea of a \textbf{bipartite graph matching}, where one partition signifies visible boxes and the other partition signifies invisible boxes.
+
+Let us construct an auxiliary \textbf{directed} graph $G = (W \cup I, E')$ where $W = \{W_1,W_2,W_3,\cdots,W_n\}$ is the set of nodes corresponding to the visible vertices, and $I = \{I_1, I_2, I_3, \cdots, I_n\}$ is the set of nodes corresponding to invisible vertices.
+
+To construct the edge set $E'$, we will do the following:
+
+\begin{enumerate}
+    \item For all $i = 1,2,3, \cdots, n$:
+        \begin{enumerate}
+            \item For all $j$ in $\{ 1,2,3, \cdots, n \} - \{i\}$ 
+                \begin{enumerate}
+                    \item If $B_j$ can  fit inside $B_i$, make an edge from $W_i$ to $I_j$.
+                \end{enumerate}
+        \end{enumerate}
+\end{enumerate}
+
+Clearly, $G$ is bipartite with partition $(W, I)$.
+
+\textbf{The maximum number of invisible boxes will be the size of a maximum matching in $G$.}
+
+\textbf{The size of a maximum matching of $G$ can be computed as the maximum $(s,t)$-flow value of another auxiliary graph $G'$ which is a copy of $G$, including 2 new vertices $s$ and $t$, containing all possible edges from $s$ to vertices in $W$, and all possible edges from all vertices in $I$ to $t$.}
+
+This flow can be computed using the \textbf{Ford-Fulkerson Algorithm on $G'$}, which eventually gives us $v$, and \textbf{$k = n-v$, the minimum number of visible boxes, will be our final answer.}
+
 \section{Why Max Flow corresponds to answer}
+
+The max flow produced in $G'$ will create a maximum bipartite matching in $G$.
+
+Consider every edge $(w \rightarrow i)$ in a maximum matching of $G$ where $w \in W \text{and } i \in I$.
+
+$w = W_a$ and $i = I_b$ for some $a,b \in \{1,2,3,\cdots,n\}$.
+
+Then, we'll put box $B_b$ immediately inside box $B_b$. 
+
+Because this is a matching, $B_b$ will be inside exactly 1 box and $B_a$ will have exactly one box immediately inside it.
+
+We'll repeat this for each such edge in the matching, yielding us an arrangement of boxes with maximum invisible and thus minimum visible boxes.
 
 
 \section{Complexity Analysis (Using Ford-Fulkerson's Algorithm)}
 
-To solve this Max-Flow problem, we are running the Ford-Fulkerson Algorithm on our auxiliary bipartite graph construction $G = (V, E)$ where $\abs{V} = O(n)$ and $\abs{E} = O(n^2)$ (see Proof of Correctness section for cardinality of $E$).
+To solve this Max-Flow problem, we are running the Ford-Fulkerson Algorithm on our auxiliary bipartite graph construction $G' = (V, E)$ where $\abs{V} = O(n)$ and $\abs{E} = O(n^2)$ (see Proof of Correctness section for cardinality of $E$).
 
 As will be proved shortly, the maximum possible flow in this graph is also the maximum number of invisible boxes, which is $value(flow) = n-1 = O(n)$. 
 
@@ -67,25 +122,74 @@ $O(n^3)$ \textbf{time where $n$ is the number of boxes.}
 
 \section{Proof of Correctness}
 
+\textbf{Theorem 1:} Putting a box inside another box $l$ times (or equivalently, making $l$ edges in $G$) increases number of invisible boxes by $l$.  
+
+\textbf{Proof:} Induction on $l$. 
+
+For $l = 0$, number of invisible boxes created is 0. 
+
+For $l = k + 1$ for some $k$, Let the $l^{th}$ edge be putting box $B_j$ inside box $B_i$. By inductive hypothesis, the current number of invisible boxes is $k$. Then, adding this edge makes only box $B_j$ invisible, thus making the count of invisible boxes $k+1$. 
+
+\textbf{Theorem 2:} Number of edges in $G'$ is $O(n^2)$
+
+\textbf{Proof:}
+Let $G' = (V, E)$. 
+
+$V = \{s,t\} \cup W \cup I$. Thus, $\abs{V} = 2n + 2 = O(n)$. 
+
+$\abs{E} \leq \frac{\abs{V}(\abs{V} - 1)}{2} = O(n^2)$
+
 
 \section*{Addendum 1: C++ implementation}
 
+\inputminted[linenos, breaklines]{cpp}{minvisible.cpp}
 
 \section*{Addendum 2: Sample Tests}
 
-% \subsection{Test 1}
-% \subsubsection*{Input}
-% \inputminted{sh}{./in1}
-% \subsubsection*{Graph description}
-% \input{fig1}
-% \subsubsection*{Output}
-% \inputminted{sh}{./out1}
-% \subsubsection*{Output illustration}
-% \input{fig2}
+\subsection{Input Format}
+
+First line contains $n$, the number of boxes.
+
+Next $n$ lines contain $x$, $y$ and $z$, dimensions for each box.
+
+\subsection{Test 1}
+\subsubsection*{Input}
+\inputminted{sh}{./tests/in1}
+\subsubsection*{Output}
+\inputminted{sh}{./tests/out1}
+\subsubsection*{Explanation}
+All boxes of equal dimension, thus none can be contained in each any other, and all are visible.
+
+\subsection{Test 2}
+\subsubsection*{Input}
+\inputminted{sh}{./tests/in2}
+\subsubsection*{Output}
+\inputminted{sh}{./tests/out2}
+\subsubsection*{Explanation}
+Box 1 contains box 2 \\
+Box 2 contains box 3 \\
+and so on. \\
+Only box 1 is visible.
+
+\subsection{Test 3}
+\subsubsection*{Input}
+\inputminted{sh}{./tests/in3}
+\subsubsection*{Output}
+\inputminted{sh}{./tests/out3}
+\subsubsection*{Explanation}
+Box 1 has box 2 inside it, which has box 3 inside it, which has box 4 inside it. \\
+Box 8 has box 7 inside it, which has box 6 inside it, which has box 5 inside it. \\
+So, boxes 2,3,4,5,6 and 7 are invisible. \\
+Boxes 1 and 8 are visible.\\
+Thus answer is 2
+
+
 
 \section*{Addendum 3: People discussed with}
 
 Swapnil Panigrahi, Sahil Gupta and Yash Bhardwaj.
+
+The Ford-Fulkerson Algorithm implementation was taken from the \href{https://cp-algorithms.com}{https://cp-algorithms.com} website.
 
 \vspace*{\fill}
 \begin{center}
