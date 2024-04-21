@@ -1,0 +1,98 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{float}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{import}
+\usepackage{algcompatible}
+\usepackage{algpseudocode}
+\usepackage{parskip}
+\usepackage{minted}
+\usepackage{commath}
+\usepackage{tikz}
+\usepackage{hyperref}
+
+\usepackage[margin=2.2cm]{geometry}
+
+
+\title{Theory Assignment-5: ADA Winter-2024}
+\author{Rachit Arora (2022384) \and Mahi Mann (2022272)}
+
+\date{}
+\begin{document}
+\floatplacement{figure}{H}
+
+\maketitle
+
+\section{Assumptions}
+
+\begin{itemize}
+    \item A box $B_2$ can only be placed inside a box $B_1$ if dimensions of $B_2$ can be rearranged to be \textbf{strictly smaller} than dimensions of $B_1$. If not, some trivial minor changes can be made to the implementation. 
+\end{itemize}
+
+\section{Formulation as a Network Flow problem}
+
+Let there be $n$ boxes $B_1, B_2, \cdots, B_n$. with dimensions $d_1 = (x_1, y_1, z_1), d_2 = (x_2, y_2, z_2), \cdots, d_n$.
+
+We want to minimise $k = \text{number of visible boxes}$. 
+
+\textbf{$k$ can also be expressed as $n - v$ where $v$ is the number of invisible boxes.}
+
+Thus, we have an equivalent problem of \textbf{maximising $v$, the number of invisible boxes.} 
+
+\section{Why Max Flow corresponds to answer}
+
+
+\section{Complexity Analysis (Using Ford-Fulkerson's Algorithm)}
+
+To solve this Max-Flow problem, we are running the Ford-Fulkerson Algorithm on our auxiliary bipartite graph construction $G = (V, E)$ where $\abs{V} = O(n)$ and $\abs{E} = O(n^2)$ (see Proof of Correctness section for cardinality of $E$).
+
+As will be proved shortly, the maximum possible flow in this graph is also the maximum number of invisible boxes, which is $value(flow) = n-1 = O(n)$. 
+
+Ford-Fulkerson's Algorithm runs in $O(value(flow)(\abs{V} + \abs{E}))$ time, \textbf{therefore our algorithm runs in}
+
+    \begin{center}
+    \begin{align*}
+        O\left(value(flow)\left( \abs{V} + \abs{E} \right) \right) \\
+        = O(value(flow)) O(\abs{V} + \abs{E}) \\
+        = O(n) O(n + n^2) \\
+        = O(n) O(n^2) \\
+        = O(n^3) 
+    \end{align*}
+    \end{center}
+
+$O(n^3)$ \textbf{time where $n$ is the number of boxes.}
+
+
+\section{Proof of Correctness}
+
+
+\section*{Addendum 1: C++ implementation}
+
+
+\section*{Addendum 2: Sample Tests}
+
+% \subsection{Test 1}
+% \subsubsection*{Input}
+% \inputminted{sh}{./in1}
+% \subsubsection*{Graph description}
+% \input{fig1}
+% \subsubsection*{Output}
+% \inputminted{sh}{./out1}
+% \subsubsection*{Output illustration}
+% \input{fig2}
+
+\section*{Addendum 3: People discussed with}
+
+Swapnil Panigrahi, Sahil Gupta and Yash Bhardwaj.
+
+\vspace*{\fill}
+\begin{center}
+    $\square \square \square \square \square$
+    \\
+    Thank you.
+\end{center}
+\vspace*{\fill}
+
+\end{document}
